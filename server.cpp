@@ -10,16 +10,7 @@ using namespace std;
 
 int main()
 {
-	//read
-	FILE* fp = fopen("meat.jpg", "rb");
 
-	//socket bind list accept fileread send
-	fseek(fp, 0, SEEK_END);
-	int Size = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	char* Buffer = new char[Size+1];
-	fread(Buffer, sizeof(char), Size, fp);
-	fclose(fp);
 
 
 
@@ -54,15 +45,25 @@ int main()
 		//accept
 		SOCKET ClientSocket = accept(ServerSocket, (SOCKADDR*)&ClientAddr, &ClientAddrLength);
 
+		//read
+		FILE* fp = fopen("meat.jpg", "rb");
+
+		char Buffer[2048];
+		size_t readDataLength = fread(Buffer, sizeof(char), 2048, fp);
+		while (readDataLength != 0)
+		{
+			send(ClientSocket, Buffer, readDataLength, 0);
+			readDataLength = fread(Buffer, sizeof(char), 2048, fp);
+		}
+		fclose(fp);
+
 		//client¿¡ Àü¼Û
-		send(ClientSocket, Buffer, Size, 0);
 
 		closesocket(ClientSocket);
 	}
 
 	closesocket(ServerSocket);
 
-	delete[] Buffer;
 	WSACleanup();
 
 	return 0;
