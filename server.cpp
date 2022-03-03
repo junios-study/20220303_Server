@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
 	//read
-	FILE* fp = fopen("test.txt", "rb");
+	FILE* fp = fopen("meat.jpg", "rb");
 
 	//socket bind list accept fileread send
 	fseek(fp, 0, SEEK_END);
@@ -20,9 +20,6 @@ int main()
 	char* Buffer = new char[Size+1];
 	fread(Buffer, sizeof(char), Size, fp);
 	fclose(fp);
-
-
-
 
 
 
@@ -65,7 +62,7 @@ int main()
 
 	closesocket(ServerSocket);
 
-	delete Buffer;
+	delete[] Buffer;
 	WSACleanup();
 
 	return 0;
