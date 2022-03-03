@@ -3,6 +3,7 @@
 
 #include <WinSock2.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -10,10 +11,6 @@ using namespace std;
 
 int main()
 {
-
-
-
-
 	//윈속 초기화
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -45,10 +42,27 @@ int main()
 		//accept
 		SOCKET ClientSocket = accept(ServerSocket, (SOCKADDR*)&ClientAddr, &ClientAddrLength);
 
-		//read
-		FILE* fp = fopen("meat.jpg", "rb");
+		//클라이언트의 명령 수신
+		char Buffer[2049] = { 0, };
+		memset(Buffer, 0, sizeof(Buffer));
+		string Packet;
+		int recvLength = recv(ClientSocket, Buffer, 2048, 0);
 
-		char Buffer[2048];
+		if (recvLength < 0)
+		{
+			cout << "error : " << GetLastError() << endl;
+			closesocket(ClientSocket);
+			break;
+		}
+
+		Packet = Buffer;
+		//get filename
+		string Command = Packet.substr(0, 3);
+		string Filename = Packet.substr(4, Packet.length() - 4);
+
+		//read
+		FILE* fp = fopen(Filename.c_str(), "rb");
+
 		size_t readDataLength = fread(Buffer, sizeof(char), 2048, fp);
 		while (readDataLength != 0)
 		{
