@@ -21,46 +21,52 @@ int main()
 	fread(Buffer, sizeof(char), Size, fp);
 	fclose(fp);
 
-	//socket connect recv filewrite
-	//write
-	FILE* ofp = fopen("test2.txt", "wb");
-	fwrite(Buffer, sizeof(char), Size, ofp);
-	fclose(ofp);
 
-	cout << Buffer << endl;
 
-	delete Buffer;
 
-/*
+
+
+	//윈속 초기화
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
+	//소켓 생성
 	SOCKET ServerSocket;
-	SOCKADDR_IN ServerAddr;
+	ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
 
+	//서버 설정 
+	SOCKADDR_IN ServerAddr;
 	memset(&ServerAddr, 0, sizeof(ServerAddr));
 	ServerAddr.sin_family = PF_INET;
 	ServerAddr.sin_port = htons(1234);
 	ServerAddr.sin_addr.s_addr = INADDR_ANY;
 
-	ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
-
+	//바인딩
 	bind(ServerSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
 
-	char Message[] = "what ary u doing now.";
-	sendto(ServerSocket, Message, strlen(Message), 0, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
+	//listen
+	listen(ServerSocket, 0);
 
-	memset(&ClientAddr, 0, sizeof(ClientAddr));
-	ClientAddr.sin_family = PF_INET;
-	ClientAddr.sin_port = htons(1234);
-	ClientAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	while (1)
+	{
+		//새로 생기는 클라이언트 연결 정보
+		SOCKADDR_IN ClientAddr;
+		memset(&ClientAddr, 0, sizeof(ClientAddr));
+		int ClientAddrLength = sizeof(ClientAddr);
 
-	char Buffer[1024] = { 0, };
-	recvfrom(ServerSocket, Buffer, 1024, 0, (SOCKADDR*)&ClientAddr, &ClientAddrLength);
+		//accept
+		SOCKET ClientSocket = accept(ServerSocket, (SOCKADDR*)&ClientAddr, &ClientAddrLength);
 
-	cout << Buffer << endl;
+		//client에 전송
+		send(ClientSocket, Buffer, Size, 0);
 
+		closesocket(ClientSocket);
+	}
+
+	closesocket(ServerSocket);
+
+	delete Buffer;
 	WSACleanup();
-*/
+
 	return 0;
 }
